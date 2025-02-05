@@ -1,9 +1,14 @@
 # k6
 docker-compose up k6
 docker-compose down k6
-# playwright in subfolder do, second command if want to run locally to
+# initial playwright in subfolder locally 
 npm init -y
 npm init playwright@latest
+# run playwright locally
+npx playwright test
+npx playwright show-report
+npx playwright codegen
+
 # running playwright with docker
 docker-compose up playwright
 docker-compose down playwright
