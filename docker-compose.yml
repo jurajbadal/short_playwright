@@ -7,7 +7,7 @@ services:
       - ./playwright:/app/playwright
       - /app/playwright/node_modules
     working_dir: /app/playwright
-    command: npx playwright test --browser=all      
+    command: npx playwright test       
     
   k6:
     build: ./K6
