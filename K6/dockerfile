@@ -1,0 +1,8 @@
+
+FROM grafana/k6
+
+WORKDIR /k6
+
+COPY . .
+
+CMD ["run", "script.js"]

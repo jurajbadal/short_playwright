@@ -1,0 +1,21 @@
+services:
+  playwright:
+    build:
+      context: ./playwright
+      dockerfile: Dockerfile    
+    volumes:
+      - ./playwright:/app/playwright
+      - /app/playwright/node_modules
+    working_dir: /app/playwright
+    command: npx playwright test --browser=all      
+    
+  k6:
+    build: ./K6
+    volumes:
+      - ${PWD}/k6:/k6      
+    environment:
+      - K6_WEB_DASHBOARD=true
+      - K6_WEB_DASHBOARD_EXPORT=/k6/html-report.html      
+    command: run script.js
+
+ 
