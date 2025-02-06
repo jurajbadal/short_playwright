@@ -8,6 +8,9 @@ npm init playwright@latest
 npx playwright test
 npx playwright show-report
 npx playwright codegen
+npx playwright test examples.spec.js --ui
+npx playwright test examples.spec.js --debug
+
 
 # running playwright with docker
 docker-compose up playwright
