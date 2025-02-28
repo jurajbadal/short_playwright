@@ -3,6 +3,7 @@ import { check, sleep } from 'k6';
 import { Trend, Rate } from 'k6/metrics';
 import { htmlReport } from "https://raw.githubusercontent.com/benc-uk/k6-reporter/main/dist/bundle.js";
 
+// Custom metrics
 const responseTimeTrend = new Trend('response_time');
 const errorRate = new Rate('error_rate');
 const contentCheckRate = new Rate('content_check_rate');
@@ -18,29 +19,29 @@ export const options = {
 };
 
 export default function() {
-  // HTTPBin API endpoints
+  // JSONPlaceholder API endpoints
   const responses = {
-    get: http.get('https://httpbin.org/get'),
-    status: http.get('https://httpbin.org/status/200'),
-    headers: http.get('https://httpbin.org/headers')
+    posts: http.get('https://jsonplaceholder.typicode.com/posts/1'),
+    comments: http.get('https://jsonplaceholder.typicode.com/posts/1/comments'),
+    users: http.get('https://jsonplaceholder.typicode.com/users/1')
   };
   
+  // Track response times for each endpoint
   Object.entries(responses).forEach(([name, response]) => {
-    // Track response time
     responseTimeTrend.add(response.timings.duration, { endpoint: name });
     
     // Check for errors
     const isSuccessful = response.status === 200;
     errorRate.add(!isSuccessful, { endpoint: name });
     
-    // Content checks
+    // Content checks specific to each endpoint
     let contentCheck = false;
-    if (name === 'get') {
-      contentCheck = response.json().url !== undefined;
-    } else if (name === 'status') {
-      contentCheck = response.status === 200;
-    } else if (name === 'headers') {
-      contentCheck = response.json().headers !== undefined;
+    if (name === 'posts') {
+      contentCheck = response.json().title !== undefined;
+    } else if (name === 'comments') {
+      contentCheck = response.json().length > 0;
+    } else if (name === 'users') {
+      contentCheck = response.json().name !== undefined;
     }
     
     contentCheckRate.add(contentCheck, { endpoint: name });

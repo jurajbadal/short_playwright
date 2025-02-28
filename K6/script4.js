@@ -11,18 +11,18 @@ export const options = {
   vus: 1,
   duration: '30s',
   thresholds: {
-    'response_time': ['p(95)<500'],
+    'response_time': ['p(95)<1000'], // Increased threshold as external APIs might be slower
     'error_rate': ['rate<0.1'],
     'content_check_rate': ['rate>0.9'],
   }
 };
 
 export default function() {
-  // HTTPBin API endpoints
+  // Multiple API endpoints to test
   const responses = {
-    get: http.get('https://httpbin.org/get'),
-    status: http.get('https://httpbin.org/status/200'),
-    headers: http.get('https://httpbin.org/headers')
+    randomUser: http.get('https://randomuser.me/api/'),
+    jsonPlaceholder: http.get('https://jsonplaceholder.typicode.com/posts/1'),
+    httpBin: http.get('https://httpbin.org/get')
   };
   
   Object.entries(responses).forEach(([name, response]) => {
@@ -35,15 +35,18 @@ export default function() {
     
     // Content checks
     let contentCheck = false;
-    if (name === 'get') {
-      contentCheck = response.json().url !== undefined;
-    } else if (name === 'status') {
-      contentCheck = response.status === 200;
-    } else if (name === 'headers') {
-      contentCheck = response.json().headers !== undefined;
+    if (name === 'randomUser') {
+      contentCheck = response.json().results.length > 0;
+    } else if (name === 'jsonPlaceholder') {
+      contentCheck = response.json().id === 1;
+    } else if (name === 'httpBin') {
+      contentCheck = response.json().url.includes('httpbin.org');
     }
     
     contentCheckRate.add(contentCheck, { endpoint: name });
+    check(response, {
+      [`${name} contains expected content`]: () => contentCheck
+    });
   });
   
   sleep(1);
